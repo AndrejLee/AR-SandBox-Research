@@ -10,7 +10,8 @@
 /*.suo
 /*.user
 /*.userprefs
-/*.pidb/*.meta
+/*.pidb
+/*.meta
 /*.booproj
 
 #Unity3D Generated File On Crash Reports
