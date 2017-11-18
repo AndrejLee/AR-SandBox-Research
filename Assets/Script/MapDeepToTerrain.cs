@@ -9,7 +9,10 @@ public class MapDeepToTerrain : MonoBehaviour {
 
     short[] DepthImage;
     public DepthWrapper KinectDepth;
-    bool init = true;
+    bool checkToWriteFile = true;
+    static int h = 240;
+    static int w = 320;
+    float[,] data = new float[h, w];
 
     // Use this for initialization
     void Start() {
@@ -73,45 +76,22 @@ public class MapDeepToTerrain : MonoBehaviour {
 
     void loadDeep(TerrainData tData, short[] rawData, bool adjustResolution = false)
     {
-        int h = 240;
-        int w = 320;
-
-
-        //SHIT
-        //int w = 240;
-        //int h = 320;
-
-        float[,] data = new float[h,w];
+       
         int i = rawData.Length - 1;
         float maxVal = (float) rawData.Max() / 6000;
-        
-            for (int y = 0; y < h; y++)
+
+        for (int y = 0; y < h; y++)
+        {
+            for (int x = 0; x < w; x++)
             {
-                for (int x = 0; x < w; x++)
-                {
-
-                    //data[y, x] = (float)5 * (y + x) / 0xFFFF;
-                    //if (rawData[i] < 1000)
-                    //{
-                    //    data[y, x] = 0;
-                    //}
-                    //else if (1000 <= rawData[i] && rawData[i] < 2000)
-                    //{
-                    //    data[y, x] = 0.1f;
-                    //}
-                    //else
-                    //{
-                    //    data[y, x] = 0;
-                    //}
-
-                    float temp = (float)rawData[i] / 6000;
-
-                    data[y, x] = maxVal - temp;
-                    i--;
-                }
+                data[y, x] = maxVal - (float)rawData[i] / 6000;
+                //data[y, x] = (y + x) / 6000.0f;
+                i--;
             }
-        tData.size = new Vector3(w, 100, h);
+        }
+        tData.size = new Vector3(w, 500, h);
         tData.SetHeights(0, 0, data);
+        mapColor(tData, w, h);
     }
 	
 	private void mapColor(TerrainData terrainData, int w, int h)
@@ -197,9 +177,9 @@ public class MapDeepToTerrain : MonoBehaviour {
 
     void WriteToFile()
     {
-        if (init)
+        if (checkToWriteFile)
         {
-            init = false;
+            checkToWriteFile = false;
             using (FileStream fs = new FileStream("a.txt", FileMode.CreateNew, FileAccess.Write))
             using (StreamWriter sw = new StreamWriter(fs))
             {
